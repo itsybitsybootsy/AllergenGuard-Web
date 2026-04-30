@@ -700,6 +700,7 @@ body::after {
   height: 2px;
   background: linear-gradient(90deg, var(--safe), var(--caution), var(--safe));
   opacity: 0.2;
+  z-index: 1;
 }
 .step {
   text-align: center;
@@ -1106,24 +1107,20 @@ body::after {
 <section class="hero" id="hero">
   <div class="hero-grid"></div>
   <div class="hero-inner">
-    <div class="hero-icon-wrap reveal">
-      <div class="hero-icon-glow"></div>
-      <img src="icon.png" alt="Allergen Guard App Icon" class="hero-icon" width="88" height="88">
-    </div>
-    <h1 class="hero-headline reveal reveal-delay-1">
+    <h1 class="hero-headline reveal">
       Every ingredient<br><em>matters.</em>
     </h1>
-    <p class="hero-sub reveal reveal-delay-2">
+    <p class="hero-sub reveal reveal-delay-1">
       AI-powered allergen detection that reads labels so you don't have to. Scan any product. Know in seconds. Stay safe.
     </p>
-    <div class="hero-badges reveal reveal-delay-3">
+    <div class="hero-badges reveal reveal-delay-2">
       <a href="#features" class="badge-ios">
         <svg viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.47C4.25 16.56 2.93 11.3 4.7 7.72C5.57 5.94 7.36 4.86 9.28 4.84C10.56 4.82 11.77 5.72 12.55 5.72C13.33 5.72 14.8 4.63 16.35 4.8C17.02 4.83 18.87 5.08 20.07 6.81C19.96 6.88 17.62 8.24 17.65 11.08C17.68 14.45 20.6 15.56 20.63 15.57C20.6 15.65 20.14 17.23 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
         Coming to iOS
       </a>
       <span class="badge-ji">Jugend Innovativ 2026 &middot; Finalist</span>
     </div>
-    <div class="verdict-pills reveal reveal-delay-4">
+    <div class="verdict-pills reveal reveal-delay-3">
       <span class="verdict-pill verdict-pill--safe">SAFE</span>
       <span class="verdict-pill verdict-pill--caution">CAUTION</span>
       <span class="verdict-pill verdict-pill--avoid">AVOID</span>
