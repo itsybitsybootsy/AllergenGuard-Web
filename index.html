@@ -691,17 +691,6 @@ body::after {
   gap: 0;
   position: relative;
 }
-.steps::before {
-  content: '';
-  position: absolute;
-  top: 44px;
-  left: 15%;
-  right: 15%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--safe), var(--caution), var(--safe));
-  opacity: 0.2;
-  z-index: 1;
-}
 .step {
   text-align: center;
   padding: 0 32px;
@@ -715,8 +704,6 @@ body::after {
   align-items: center;
   justify-content: center;
   margin: 0 auto 28px;
-  position: relative;
-  z-index: 2;
 }
 .step-num svg { width: 36px; height: 36px; }
 
@@ -1078,7 +1065,6 @@ body::after {
   .tech-grid { grid-template-columns: 1fr 1fr; }
   .team-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
   .steps { grid-template-columns: 1fr; gap: 40px; }
-  .steps::before { display: none; }
   .section { padding: 80px 20px; }
   .nav-link { display: none; }
 }
