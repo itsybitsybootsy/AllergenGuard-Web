@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allergen Guard — Every Ingredient Matters</title>
+<meta name="description" content="AI-powered food allergen detection for iOS. Scan barcodes, read labels, stay safe. Built by students, validated by science.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET & FOUNDATION
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --ink: #0F1411;
+  --surface: #FAFAF7;
+  --card: #FFFFFF;
+  --safe: #0A8754;
+  --safe-light: #0A875422;
+  --danger: #C2362F;
+  --danger-light: #C2362F18;
+  --caution: #C97A1F;
+  --accent: #FFD23F;
+  --muted: #6B7570;
+  --border: #E4E2DC;
+  --border-light: #EFEEE9;
+  --navy: #1B2A4A;
+
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { font-family: var(--font-body); color: var(--ink); background: var(--surface); overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* Grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px;
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY UTILITIES
+   ═══════════════════════════════════════════ */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--safe);
+}
+.eyebrow--light { color: rgba(255,255,255,0.4); }
+
+/* ═══════════════════════════════════════════
+   REVEAL ANIMATIONS
+   ═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ═══════════════════════════════════════════
+   FLOATING NAV
+   ═══════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  z-index: 1000;
+  background: rgba(15, 20, 17, 0.85);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  padding: 8px 8px 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.5s var(--ease-out-expo), opacity 0.5s var(--ease-out-expo);
+  opacity: 0;
+}
+.nav.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.nav-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+.nav-link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  padding: 8px 14px;
+  border-radius: 100px;
+  transition: color 0.3s, background 0.3s;
+  white-space: nowrap;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-cta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--accent);
+  padding: 8px 18px;
+  border-radius: 100px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.nav-cta:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(255, 210, 63, 0.3); }
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  overflow: hidden;
+  padding: 80px 24px;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(10, 135, 84, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(27, 42, 74, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255, 210, 63, 0.04) 0%, transparent 50%);
+}
+
+/* Shield grid pattern */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  text-align: center;
+}
+
+.hero-icon-wrap {
+  display: inline-block;
+  margin-bottom: 40px;
+  position: relative;
+}
+.hero-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 20px 60px rgba(0,0,0,0.4);
+  animation: iconFloat 6s ease-in-out infinite;
+}
+.hero-icon-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(10, 135, 84, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--safe);
+  position: relative;
+}
+.hero-headline em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--safe);
+  opacity: 0.3;
+  border-radius: 2px;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: rgba(255,255,255,0.45);
+  max-width: 560px;
+  margin: 0 auto 40px;
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.hero-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.badge-ios {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  transition: background 0.3s, border-color 0.3s;
+}
+.badge-ios:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
+.badge-ios svg { width: 18px; height: 18px; fill: currentColor; }
+
+.badge-ji {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.2);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+.hero-scroll-line {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ═══════════════════════════════════════════
+   SECTION FRAMEWORK
+   ═══════════════════════════════════════════ */
+.section {
+  padding: 120px 24px;
+  position: relative;
+}
+.section--dark {
+  background: var(--ink);
+  color: #fff;
+}
+.section--cream { background: var(--surface); }
+.section--white { background: var(--card); }
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.section-header {
+  max-width: 640px;
+  margin-bottom: 64px;
+}
+.section-header--center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-top: 12px;
+  color: var(--ink);
+}
+.section--dark .section-title { color: #fff; }
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 16px;
+  font-weight: 300;
+}
+.section--dark .section-desc { color: rgba(255,255,255,0.45); }
+
+/* ═══════════════════════════════════════════
+   PROBLEM / IMPACT
+   ═══════════════════════════════════════════ */
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.impact-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.impact-stat {
+  padding: 28px 0;
+  border-top: 2px solid var(--border);
+}
+.impact-stat-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.impact-stat-number span { color: var(--safe); }
+.impact-stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.impact-story {
+  position: relative;
+  padding-left: 32px;
+}
+.impact-story::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--safe), var(--caution), var(--danger));
+  border-radius: 2px;
+}
+.impact-story p {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+.impact-story p strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   FEATURES
+   ═══════════════════════════════════════════ */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.feature-card {
+  padding: 44px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s var(--ease-out-expo), box-shadow 0.4s var(--ease-out-expo);
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+}
+
+.feature-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+.feature-icon svg { width: 24px; height: 24px; }
+
+.feature-icon--scan { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+.feature-icon--scan svg { stroke: var(--safe); fill: none; stroke-width: 2; }
+
+.feature-icon--ai { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+.feature-icon--ai svg { stroke: var(--navy); fill: none; stroke-width: 2; }
+
+.feature-icon--match { background: linear-gradient(135deg, #FFF8E1, #FFE082); }
+.feature-icon--match svg { stroke: var(--caution); fill: none; stroke-width: 2; }
+
+.feature-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+.feature-desc {
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 20px;
+}
+.feature-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--border-light);
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════
+   EMERGENCY FEATURE — SPECIAL SECTION
+   ═══════════════════════════════════════════ */
+.emergency {
+  position: relative;
+  padding: 100px 24px;
+  background: var(--ink);
+  overflow: hidden;
+}
+.emergency::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 80% at 80% 50%, rgba(194, 54, 47, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 20% 80%, rgba(194, 54, 47, 0.06) 0%, transparent 60%);
+}
+.emergency::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--danger), transparent);
+  opacity: 0.4;
+}
+
+.emergency-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.emergency-content .eyebrow { color: var(--danger); }
+
+.emergency-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.emergency-desc {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+
+.siri-command {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(194, 54, 47, 0.12);
+  border: 1px solid rgba(194, 54, 47, 0.25);
+  padding: 16px 28px;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.siri-command::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(194, 54, 47, 0.08), transparent);
+  animation: siriShimmer 3s ease-in-out infinite;
+}
+@keyframes siriShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.siri-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B6B, #C2362F, #8B1A1A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  animation: siriPulse 2s ease-in-out infinite;
+}
+@keyframes siriPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 54, 47, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(194, 54, 47, 0); }
+}
+.siri-icon svg { width: 16px; height: 16px; fill: #fff; }
+
+/* Emergency visual — phone mockup */
+.emergency-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-mockup {
+  width: 240px;
+  height: 480px;
+  background: #1a1a1a;
+  border-radius: 36px;
+  border: 3px solid #333;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 0 0 18px 18px;
+  z-index: 3;
+}
+.phone-screen {
+  position: absolute;
+  inset: 4px;
+  border-radius: 32px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px 32px;
+}
+.phone-screen--emergency {
+  background: linear-gradient(180deg, #1a0808 0%, #2d0a0a 50%, #1a0808 100%);
+}
+.phone-screen--scan {
+  background: linear-gradient(180deg, #080F0B 0%, #0F1411 100%);
+}
+
+.phone-emergency-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(194, 54, 47, 0.15);
+  border: 2px solid rgba(194, 54, 47, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  animation: emergencyPulse 2s ease-in-out infinite;
+}
+@keyframes emergencyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 54, 47, 0.3), 0 0 20px rgba(194, 54, 47, 0.1); }
+  50% { box-shadow: 0 0 0 16px rgba(194, 54, 47, 0), 0 0 40px rgba(194, 54, 47, 0.2); }
+}
+.phone-emergency-icon svg { width: 28px; height: 28px; fill: var(--danger); }
+
+.phone-emergency-text {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  text-align: center;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+.phone-emergency-sub {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin-bottom: 24px;
+}
+.phone-emergency-btn {
+  width: 80%;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════════
+   HOW IT WORKS
+   ═══════════════════════════════════════════ */
+.steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 44px;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--safe), var(--caution), var(--safe));
+  opacity: 0.2;
+}
+.step {
+  text-align: center;
+  padding: 0 32px;
+  position: relative;
+}
+.step-num {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 28px;
+  position: relative;
+  z-index: 2;
+}
+.step-num svg { width: 36px; height: 36px; }
+
+.step-num--1 { background: var(--safe-light); border: 2px solid rgba(10, 135, 84, 0.15); }
+.step-num--1 svg { stroke: var(--safe); fill: none; stroke-width: 1.5; }
+
+.step-num--2 { background: rgba(27, 42, 74, 0.08); border: 2px solid rgba(27, 42, 74, 0.1); }
+.step-num--2 svg { stroke: var(--navy); fill: none; stroke-width: 1.5; }
+
+.step-num--3 { background: rgba(255, 210, 63, 0.1); border: 2px solid rgba(255, 210, 63, 0.15); }
+.step-num--3 svg { stroke: var(--caution); fill: none; stroke-width: 1.5; }
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.step-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ═══════════════════════════════════════════
+   VALIDATION / TRUST
+   ═══════════════════════════════════════════ */
+.validation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 64px;
+}
+
+.val-card {
+  padding: 36px 28px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  transition: border-color 0.3s, background 0.3s;
+}
+.val-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+}
+.val-number {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.val-number span { color: var(--safe); }
+.val-label {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.val-quote-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.val-quote {
+  position: relative;
+  padding: 36px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.val-quote::before {
+  content: '\201C';
+  font-family: var(--font-display);
+  font-size: 4rem;
+  color: var(--safe);
+  opacity: 0.3;
+  position: absolute;
+  top: 16px;
+  left: 28px;
+  line-height: 1;
+}
+.val-quote-text {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.val-quote-attr {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.val-compliance {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.compliance-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.compliance-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--safe);
+  flex-shrink: 0;
+}
+.compliance-text {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+}
+.compliance-text strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   TECHNOLOGY
+   ═══════════════════════════════════════════ */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.tech-card {
+  padding: 32px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  text-align: center;
+  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+}
+.tech-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+}
+.tech-card-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+.tech-card-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.tech-card-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════
+   TEAM
+   ═══════════════════════════════════════════ */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+.team-card {
+  padding: 40px 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  text-align: center;
+  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+}
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.06);
+}
+.team-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+}
+.team-avatar--ll { background: linear-gradient(135deg, var(--ink), #2a3a2e); }
+.team-avatar--tc { background: linear-gradient(135deg, var(--safe), #0a6b44); }
+.team-avatar--mj { background: linear-gradient(135deg, var(--muted), #4a5650); }
+
+.team-name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.team-role {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--safe);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.team-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.team-school {
+  text-align: center;
+  margin-top: 48px;
+  padding: 32px;
+  border-radius: 16px;
+  background: var(--border-light);
+}
+.team-school-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.team-school-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════
+   CTA
+   ═══════════════════════════════════════════ */
+.cta-section {
+  padding: 120px 24px;
+  background: var(--ink);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(10, 135, 84, 0.1) 0%, transparent 60%);
+}
+.cta-inner {
+  position: relative;
+  z-index: 2;
+}
+.cta-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+.cta-desc {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  background: var(--safe);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 100px;
+  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+}
+.cta-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 40px rgba(10, 135, 84, 0.3);
+}
+.cta-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.footer {
+  padding: 40px 24px;
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+}
+.footer-text {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.6;
+}
+.footer-text a {
+  color: rgba(255,255,255,0.4);
+  transition: color 0.2s;
+}
+.footer-text a:hover { color: var(--safe); }
+.footer-heart { color: var(--danger); }
+
+/* ═══════════════════════════════════════════
+   ANIMATED COUNTER
+   ═══════════════════════════════════════════ */
+.counter[data-target] {
+  display: inline;
+}
+
+/* ═══════════════════════════════════════════
+   VERDICT DEMO
+   ═══════════════════════════════════════════ */
+.verdict-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 32px;
+}
+.verdict-pill {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.verdict-pill--safe { background: var(--safe-light); color: var(--safe); border: 1px solid rgba(10, 135, 84, 0.15); }
+.verdict-pill--caution { background: rgba(201, 122, 31, 0.08); color: var(--caution); border: 1px solid rgba(201, 122, 31, 0.15); }
+.verdict-pill--avoid { background: var(--danger-light); color: var(--danger); border: 1px solid rgba(194, 54, 47, 0.15); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .impact-grid { grid-template-columns: 1fr; gap: 48px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .emergency-inner { grid-template-columns: 1fr; gap: 48px; }
+  .emergency-visual { order: -1; }
+  .validation-grid { grid-template-columns: 1fr 1fr; }
+  .val-quote-row { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: 1fr 1fr; }
+  .team-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+  .steps { grid-template-columns: 1fr; gap: 40px; }
+  .steps::before { display: none; }
+  .section { padding: 80px 20px; }
+  .nav-link { display: none; }
+}
+@media (max-width: 600px) {
+  .impact-stats { grid-template-columns: 1fr; }
+  .validation-grid { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: 1fr; }
+  .hero { padding: 60px 20px; min-height: 100svh; }
+  .feature-card { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ FLOATING NAV ═══ -->
+<nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+  <img src="icon.png" alt="Allergen Guard" class="nav-logo" width="26" height="26">
+  <a href="#features" class="nav-link">Features</a>
+  <a href="#how-it-works" class="nav-link">How It Works</a>
+  <a href="#validation" class="nav-link">Validation</a>
+  <a href="#team" class="nav-link">Team</a>
+  <a href="#cta" class="nav-cta">Coming to iOS</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-icon-wrap reveal">
+      <div class="hero-icon-glow"></div>
+      <img src="icon.png" alt="Allergen Guard App Icon" class="hero-icon" width="88" height="88">
+    </div>
+    <h1 class="hero-headline reveal reveal-delay-1">
+      Every ingredient<br><em>matters.</em>
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      AI-powered allergen detection that reads labels so you don't have to. Scan any product. Know in seconds. Stay safe.
+    </p>
+    <div class="hero-badges reveal reveal-delay-3">
+      <a href="#features" class="badge-ios">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.47C4.25 16.56 2.93 11.3 4.7 7.72C5.57 5.94 7.36 4.86 9.28 4.84C10.56 4.82 11.77 5.72 12.55 5.72C13.33 5.72 14.8 4.63 16.35 4.8C17.02 4.83 18.87 5.08 20.07 6.81C19.96 6.88 17.62 8.24 17.65 11.08C17.68 14.45 20.6 15.56 20.63 15.57C20.6 15.65 20.14 17.23 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+        Coming to iOS
+      </a>
+      <span class="badge-ji">Jugend Innovativ 2026 &middot; Finalist</span>
+    </div>
+    <div class="verdict-pills reveal reveal-delay-4">
+      <span class="verdict-pill verdict-pill--safe">SAFE</span>
+      <span class="verdict-pill verdict-pill--caution">CAUTION</span>
+      <span class="verdict-pill verdict-pill--avoid">AVOID</span>
+    </div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <div class="hero-scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ═══ IMPACT / PROBLEM ═══ -->
+<section class="section section--cream" id="impact">
+  <div class="container">
+    <div class="impact-grid">
+      <div>
+        <div class="section-header reveal">
+          <div class="eyebrow">The Problem</div>
+          <h2 class="section-title">Food allergies are invisible, unpredictable, and potentially fatal.</h2>
+        </div>
+        <div class="impact-stats">
+          <div class="impact-stat reveal reveal-delay-1">
+            <div class="impact-stat-number">17<span>M+</span></div>
+            <div class="impact-stat-label">People affected<br>across the EU</div>
+          </div>
+          <div class="impact-stat reveal reveal-delay-2">
+            <div class="impact-stat-number">100<span>K+</span></div>
+            <div class="impact-stat-label">Families in Austria<br>living with allergies</div>
+          </div>
+          <div class="impact-stat reveal reveal-delay-3">
+            <div class="impact-stat-number">14</div>
+            <div class="impact-stat-label">Major allergens<br>regulated in the EU</div>
+          </div>
+          <div class="impact-stat reveal reveal-delay-4">
+            <div class="impact-stat-number">&lt;3<span>s</span></div>
+            <div class="impact-stat-label">Time to scan with<br>Allergen Guard</div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-story reveal">
+        <p>
+          For millions of people, <strong>every grocery trip is a gamble</strong>. Tiny text. Foreign languages. Hidden derivatives. A single overlooked ingredient can trigger a life-threatening reaction.
+        </p>
+        <p>
+          Parents read every label twice. Teenagers avoid eating out. Travellers carry laminated allergy cards in four languages. <strong>It shouldn't be this hard to eat safely.</strong>
+        </p>
+        <p>
+          Allergen Guard was born from this exact frustration — a personal experience turned into a mission to make food safety <strong>instant, intelligent, and accessible to everyone</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="section section--white" id="features">
+  <div class="container">
+    <div class="section-header section-header--center reveal">
+      <div class="eyebrow">Core Features</div>
+      <h2 class="section-title">Four ways to protect you.</h2>
+      <p class="section-desc">From barcode scanning to emergency calls — every feature designed for when it matters most.</p>
+    </div>
+    <div class="features-grid">
+      <!-- Barcode Scan -->
+      <div class="feature-card reveal">
+        <div class="feature-icon feature-icon--scan">
+          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="2" height="16" rx="0.5"/><rect x="6" y="4" width="1" height="16" rx="0.5"/><rect x="9" y="4" width="3" height="16" rx="0.5"/><rect x="14" y="4" width="1" height="16" rx="0.5"/><rect x="17" y="4" width="2" height="16" rx="0.5"/><rect x="21" y="4" width="1" height="16" rx="0.5"/></svg>
+        </div>
+        <h3 class="feature-title">Instant Barcode Scan</h3>
+        <p class="feature-desc">Point your camera at any barcode. Product data is fetched instantly from OpenFoodFacts — name, brand, ingredients, allergens, and traces. Know what you're eating in under 3 seconds.</p>
+        <div class="feature-tags">
+          <span class="feature-tag">Real-time</span>
+          <span class="feature-tag">98.2% accuracy</span>
+          <span class="feature-tag">Auto-detect</span>
+        </div>
+      </div>
+      <!-- AI Label Reading -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon feature-icon--ai">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="feature-title">AI Label Reading</h3>
+        <p class="feature-desc">No barcode? Snap a photo of any ingredient label. Google Gemini 2.5 Flash analyzes the text, extracts every ingredient, and cross-references your allergy profile. Works with handwritten menus too.</p>
+        <div class="feature-tags">
+          <span class="feature-tag">Gemini AI</span>
+          <span class="feature-tag">Photo analysis</span>
+          <span class="feature-tag">94.7% recall</span>
+        </div>
+      </div>
+      <!-- Smart Matching -->
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon feature-icon--match">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3 class="feature-title">Smart Allergen Matching</h3>
+        <p class="feature-desc">500+ synonym keywords across 5 languages. "Kasein" maps to milk. "Lécithine" maps to soy. Works offline, catches derivatives human eyes miss, and supports 16 major allergen categories.</p>
+        <div class="feature-tags">
+          <span class="feature-tag">5 languages</span>
+          <span class="feature-tag">Offline</span>
+          <span class="feature-tag">500+ synonyms</span>
+        </div>
+      </div>
+      <!-- Siri Emergency -->
+      <div class="feature-card reveal reveal-delay-3" style="border-color: rgba(194,54,47,0.15); background: linear-gradient(135deg, #fff 80%, rgba(194,54,47,0.03));">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #FFEBEE, #FFCDD2);">
+          <svg viewBox="0 0 24 24" style="stroke: var(--danger); fill: none; stroke-width: 2;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <h3 class="feature-title" style="color: var(--danger);">Siri Emergency Call</h3>
+        <p class="feature-desc">During an allergic reaction, every second counts — and your hands may be occupied with an EpiPen. Say <strong>"Hey Siri, Allergen Emergency"</strong> to instantly call your preset emergency contact. Completely hands-free. Potentially life-saving.</p>
+        <div class="feature-tags">
+          <span class="feature-tag" style="background: var(--danger-light); color: var(--danger);">Hands-free</span>
+          <span class="feature-tag" style="background: var(--danger-light); color: var(--danger);">Siri Integration</span>
+          <span class="feature-tag" style="background: var(--danger-light); color: var(--danger);">Life-saving</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ EMERGENCY SECTION ═══ -->
+<section class="emergency" id="emergency">
+  <div class="emergency-inner">
+    <div class="emergency-content">
+      <div class="eyebrow reveal">When Seconds Matter</div>
+      <h2 class="emergency-title reveal reveal-delay-1">"Hey Siri,<br>Allergen Emergency."</h2>
+      <p class="emergency-desc reveal reveal-delay-2">
+        Anaphylaxis can cause throat swelling, dizziness, and loss of consciousness within minutes. Fumbling with a phone isn't an option. Allergen Guard integrates with Siri to call your emergency contact with a single voice command — even when your hands are occupied with an EpiPen.
+      </p>
+      <div class="siri-command reveal reveal-delay-3">
+        <div class="siri-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <span>Calling Emergency Contact...</span>
+      </div>
+    </div>
+    <div class="emergency-visual reveal">
+      <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-screen phone-screen--emergency">
+          <div class="phone-emergency-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div class="phone-emergency-text">Allergen Emergency</div>
+          <div class="phone-emergency-sub">Calling emergency contact...</div>
+          <div class="phone-emergency-btn">END CALL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="section section--cream" id="how-it-works">
+  <div class="container">
+    <div class="section-header section-header--center reveal">
+      <div class="eyebrow">How It Works</div>
+      <h2 class="section-title">Three steps to certainty.</h2>
+      <p class="section-desc">From scan to verdict in under 3 seconds. No account required.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num step-num--1">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <h3 class="step-title">Scan</h3>
+        <p class="step-desc">Point your camera at a barcode or ingredient label. The app detects it automatically — no button press needed.</p>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num step-num--2">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="step-title">AI Analyzes</h3>
+        <p class="step-desc">Gemini AI reads ingredients, matches against your allergen profile across 500+ synonyms in 5 languages.</p>
+      </div>
+      <div class="step reveal reveal-delay-4">
+        <div class="step-num step-num--3">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3 class="step-title">Get Your Verdict</h3>
+        <p class="step-desc">Clear traffic-light result: Safe, Caution, or Avoid — with confidence scores and detailed allergen breakdown.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VALIDATION ═══ -->
+<section class="section section--dark" id="validation">
+  <div class="container">
+    <div class="section-header section-header--center reveal">
+      <div class="eyebrow eyebrow--light" style="color: var(--safe);">Validated by Science</div>
+      <h2 class="section-title">Not just built. Tested.</h2>
+      <p class="section-desc">152 products systematically validated with manually-curated ground truth data. Every claim backed by numbers.</p>
+    </div>
+    <div class="validation-grid">
+      <div class="val-card reveal">
+        <div class="val-number"><span class="counter" data-target="152">0</span></div>
+        <div class="val-label">Products tested across<br>6 categories & 4 languages</div>
+      </div>
+      <div class="val-card reveal reveal-delay-1">
+        <div class="val-number"><span>94.7</span>%</div>
+        <div class="val-label">Allergen recall rate<br>across all test products</div>
+      </div>
+      <div class="val-card reveal reveal-delay-2">
+        <div class="val-number">&lt;2%</div>
+        <div class="val-label">False negative rate<br>when it matters most</div>
+      </div>
+      <div class="val-card reveal reveal-delay-3">
+        <div class="val-number">4.5<span>/5</span></div>
+        <div class="val-label">User satisfaction from<br>8 real-world testers</div>
+      </div>
+    </div>
+    <div class="val-quote-row">
+      <div class="val-quote reveal">
+        <p class="val-quote-text">"Endlich kann ich im Supermarkt selbstständig einkaufen, ohne Angst."</p>
+        <p class="val-quote-attr">— Test subject, 16 years old, peanut allergy</p>
+      </div>
+      <div class="val-compliance reveal reveal-delay-1">
+        <div class="compliance-item">
+          <div class="compliance-dot"></div>
+          <div class="compliance-text"><strong>EU AI Act</strong> — Limited Risk classification (Art. 50)</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-dot"></div>
+          <div class="compliance-text"><strong>GDPR</strong> — Health data stored locally only, never on servers</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-dot"></div>
+          <div class="compliance-text"><strong>EU MDR</strong> — Decision support tool, not a medical device</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-dot"></div>
+          <div class="compliance-text"><strong>DPIA</strong> — Data protection impact assessment completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECHNOLOGY ═══ -->
+<section class="section section--cream" id="technology">
+  <div class="container">
+    <div class="section-header section-header--center reveal">
+      <div class="eyebrow">Under the Hood</div>
+      <h2 class="section-title">Built with precision.</h2>
+      <p class="section-desc">17,000+ lines of Swift. Zero external dependencies. Every framework chosen for reliability and performance.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card reveal">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="tech-card-name">SwiftUI</div>
+        <div class="tech-card-desc">Native iOS interface with reactive state management and fluid animations</div>
+      </div>
+      <div class="tech-card reveal reveal-delay-1">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="tech-card-name">Gemini 2.5 Flash</div>
+        <div class="tech-card-desc">Google's latest AI model for ingredient extraction and allergen analysis</div>
+      </div>
+      <div class="tech-card reveal reveal-delay-2">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="tech-card-name">Vision Framework</div>
+        <div class="tech-card-desc">Apple's computer vision for real-time barcode detection and tracking</div>
+      </div>
+      <div class="tech-card reveal reveal-delay-3">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #F3E5F5, #E1BEE7);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7B1FA2" stroke-width="1.5"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+        </div>
+        <div class="tech-card-name">Offline-First</div>
+        <div class="tech-card-desc">Local allergen database with 500+ keywords works without any internet connection</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TEAM ═══ -->
+<section class="section section--white" id="team">
+  <div class="container">
+    <div class="section-header section-header--center reveal">
+      <div class="eyebrow">The Team</div>
+      <h2 class="section-title">Built by students.<br>Driven by purpose.</h2>
+      <p class="section-desc">Two students, 280+ hours of work alongside school, one mission: make food safe for everyone.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar team-avatar--ll">LL</div>
+        <div class="team-name">Lucas Lammer</div>
+        <div class="team-role">Lead Developer & Project Coordinator</div>
+        <div class="team-desc">iOS development, AI integration, architecture, and systematic validation. Previously published apps on the App Store.</div>
+      </div>
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-avatar team-avatar--tc">TC</div>
+        <div class="team-name">Teoman Civici</div>
+        <div class="team-role">UI/UX Design & Testing</div>
+        <div class="team-desc">Visual concept, app redesign, user test facilitation, and quality assurance across all features.</div>
+      </div>
+      <div class="team-card reveal reveal-delay-2">
+        <div class="team-avatar team-avatar--mj">MJ</div>
+        <div class="team-name">Prof. Markus Jirman</div>
+        <div class="team-role">Faculty Supervisor</div>
+        <div class="team-desc">Academic guidance and project supervision at Theresianische Akademie Wien.</div>
+      </div>
+    </div>
+    <div class="team-school reveal">
+      <div class="team-school-name">Theresianische Akademie Wien</div>
+      <div class="team-school-sub">Jugend Innovativ 2026 &middot; ICT & Digital &middot; Bundesfinale</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section" id="cta">
+  <div class="cta-inner">
+    <div class="eyebrow reveal" style="color: var(--safe); margin-bottom: 16px;">Coming Soon</div>
+    <h2 class="cta-title reveal reveal-delay-1">Ready to eat without fear?</h2>
+    <p class="cta-desc reveal reveal-delay-2">Allergen Guard is coming to the App Store. Join the mission.</p>
+    <div class="reveal reveal-delay-3">
+      <a href="#hero" class="cta-btn">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.79 22.05 6.8 20.68 5.96 19.47C4.25 16.56 2.93 11.3 4.7 7.72C5.57 5.94 7.36 4.86 9.28 4.84C10.56 4.82 11.77 5.72 12.55 5.72C13.33 5.72 14.8 4.63 16.35 4.8C17.02 4.83 18.87 5.08 20.07 6.81C19.96 6.88 17.62 8.24 17.65 11.08C17.68 14.45 20.6 15.56 20.63 15.57C20.6 15.65 20.14 17.23 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+        Coming to iOS
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <p class="footer-text">
+    Made with <span class="footer-heart">&hearts;</span> in Vienna &middot; &copy; 2026 Allergen Guard
+    <br>
+    <span style="opacity: 0.6;">Allergen Guard is a decision-support tool and does not replace medical advice.</span>
+  </p>
+</footer>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script>
+// Intersection Observer for reveal animations
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Floating nav on scroll
+const nav = document.getElementById('nav');
+let lastScroll = 0;
+const heroHeight = window.innerHeight * 0.6;
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  if (scrollY > heroHeight) {
+    nav.classList.add('visible');
+  } else {
+    nav.classList.remove('visible');
+  }
+  lastScroll = scrollY;
+}, { passive: true });
+
+// Animated counter
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.target);
+      const duration = 1500;
+      const start = performance.now();
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 4);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
