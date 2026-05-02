@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutzerklärung — Allergen Guard</title>
+<meta name="description" content="Datenschutzerklärung gemäß DSGVO und österreichischem DSG.">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --ink: #0F1411;
+  --surface: #FAFAF7;
+  --safe: #0A8754;
+  --muted: #6B7570;
+  --border: #E4E2DC;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-body); color: var(--ink); background: var(--surface); line-height: 1.7; font-weight: 300; }
+a { color: var(--safe); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+a:hover { border-bottom-color: var(--safe); }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 80px 24px 56px;
+  text-align: center;
+}
+.page-header-inner { max-width: 800px; margin: 0 auto; }
+.page-header .eyebrow {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--safe); margin-bottom: 14px;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; color: rgba(255,255,255,0.5);
+  margin-bottom: 28px; border-bottom: none;
+}
+.back-link:hover { color: #fff; border-bottom: none; }
+.toc {
+  max-width: 760px; margin: 40px auto 0; padding: 0 24px;
+}
+.toc-inner {
+  background: #fff; border: 1px solid var(--border); border-radius: 14px;
+  padding: 24px 28px;
+}
+.toc-title {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 12px;
+}
+.toc ol { list-style: none; counter-reset: toc; padding: 0; }
+.toc li { counter-increment: toc; margin-bottom: 6px; font-size: 0.92rem; }
+.toc li::before { content: counter(toc) ". "; color: var(--muted); margin-right: 4px; }
+.toc a { border-bottom: none; }
+.toc a:hover { border-bottom-color: var(--safe); }
+.content {
+  max-width: 760px; margin: 0 auto; padding: 56px 24px 96px;
+  font-size: 1rem; color: var(--ink);
+}
+.content h2 {
+  font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;
+  margin: 44px 0 14px; letter-spacing: -0.01em; scroll-margin-top: 24px;
+}
+.content h2:first-child { margin-top: 0; }
+.content h3 {
+  font-size: 1rem; font-weight: 600; margin: 24px 0 8px; color: var(--ink);
+}
+.content p { margin-bottom: 14px; color: var(--muted); }
+.content p strong { color: var(--ink); font-weight: 600; }
+.content ul { margin: 8px 0 18px 22px; color: var(--muted); }
+.content li { margin-bottom: 6px; }
+.content .placeholder {
+  display: inline-block; padding: 1px 8px; border-radius: 4px;
+  background: rgba(194, 54, 47, 0.08); color: #C2362F;
+  font-family: monospace; font-size: 0.85em; font-weight: 500;
+}
+.content hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.note {
+  border-left: 3px solid var(--safe);
+  padding: 14px 20px;
+  background: rgba(10, 135, 84, 0.05);
+  border-radius: 0 8px 8px 0;
+  margin: 18px 0;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+.footer-mini {
+  padding: 32px 24px; text-align: center; background: var(--ink);
+  color: rgba(255,255,255,0.3); font-size: 0.8rem;
+}
+.footer-mini a { color: rgba(255,255,255,0.5); border-bottom: none; }
+.footer-mini a:hover { color: #fff; }
+@media (max-width: 600px) {
+  .page-header { padding: 60px 20px 44px; }
+  .content { padding: 48px 20px 72px; font-size: 0.95rem; }
+  .content h2 { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="index.html" class="back-link">← Zurück zur Startseite</a>
+    <div class="eyebrow">Rechtliche Information</div>
+    <h1 class="page-title">Datenschutzerklärung</h1>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <div class="toc-title">Inhalt</div>
+    <ol>
+      <li><a href="#verantwortlicher">Verantwortlicher</a></li>
+      <li><a href="#allgemeines">Allgemeines</a></li>
+      <li><a href="#serverlogs">Server-Logs &amp; Hosting</a></li>
+      <li><a href="#fonts">Google Fonts</a></li>
+      <li><a href="#cookies">Cookies &amp; Tracking</a></li>
+      <li><a href="#rechte">Ihre Rechte</a></li>
+      <li><a href="#speicherdauer">Speicherdauer</a></li>
+      <li><a href="#aenderungen">Änderungen dieser Erklärung</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main class="content">
+
+  <h2 id="verantwortlicher">1. Verantwortlicher</h2>
+  <p>
+    Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und des österreichischen Datenschutzgesetzes (DSG) sind:
+  </p>
+  <p>
+    Lucas Kaan Lammer &amp; Teoman Can Civici<br>
+    <span class="placeholder">[Adresse einfügen]</span><br>
+    <span class="placeholder">[PLZ Ort]</span>, Österreich<br>
+    E-Mail: <span class="placeholder">[E-Mail einfügen]</span>
+  </p>
+
+  <h2 id="allgemeines">2. Allgemeines</h2>
+  <p>
+    Der Schutz Ihrer personenbezogenen Daten ist uns ein wichtiges Anliegen. Wir verarbeiten Ihre Daten ausschließlich auf Grundlage der gesetzlichen Bestimmungen (DSGVO, DSG, TKG 2003). In dieser Datenschutzerklärung informieren wir Sie über die wichtigsten Aspekte der Datenverarbeitung im Rahmen unserer Website.
+  </p>
+  <div class="note">
+    Diese Website ist eine reine Informationsseite. Es werden keine Kontaktformulare, Newsletter oder Benutzerkonten angeboten. Aktive Eingaben personenbezogener Daten finden auf dieser Website nicht statt.
+  </div>
+
+  <h2 id="serverlogs">3. Server-Logs &amp; Hosting</h2>
+  <p>
+    Diese Website wird über <strong>GitHub Pages</strong> gehostet (GitHub, Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA). Beim Aufruf der Website werden technisch notwendige Daten automatisiert in Server-Logs erfasst:
+  </p>
+  <ul>
+    <li>IP-Adresse (anonymisiert)</li>
+    <li>Datum und Uhrzeit des Zugriffs</li>
+    <li>Browser-Typ und -Version</li>
+    <li>Betriebssystem</li>
+    <li>Aufgerufene Seite (Referrer)</li>
+  </ul>
+  <p>
+    Diese Daten dienen ausschließlich der Sicherstellung des technischen Betriebs, der Abwehr von Angriffen und der statistischen Auswertung. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb).
+  </p>
+  <p>
+    GitHub speichert Logs gemäß der <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>. Eine Übermittlung in die USA erfolgt auf Basis der Standardvertragsklauseln (SCC) der EU-Kommission und des EU-US Data Privacy Framework.
+  </p>
+
+  <h2 id="fonts">4. Google Fonts</h2>
+  <p>
+    Diese Website nutzt Schriftarten des Dienstes <strong>Google Fonts</strong> (Anbieter: Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) zur einheitlichen typografischen Darstellung. Die Schriften werden beim Aufruf der Seite vom Google-Server geladen, wobei Ihre IP-Adresse an Google übermittelt wird.
+  </p>
+  <p>
+    Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer einheitlichen Darstellung der Inhalte).
+  </p>
+  <p>
+    Weitere Informationen finden Sie in der Datenschutzerklärung von Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a>
+  </p>
+
+  <h2 id="cookies">5. Cookies &amp; Tracking</h2>
+  <p>
+    Diese Website verwendet <strong>keine eigenen Cookies</strong>, kein Tracking, keine Analyse-Tools (z.&nbsp;B. Google Analytics) und keine Werbe-Pixel.
+  </p>
+
+  <h2 id="rechte">6. Ihre Rechte</h2>
+  <p>Ihnen stehen grundsätzlich folgende Rechte zu:</p>
+  <ul>
+    <li>Recht auf Auskunft (Art. 15 DSGVO)</li>
+    <li>Recht auf Berichtigung (Art. 16 DSGVO)</li>
+    <li>Recht auf Löschung (Art. 17 DSGVO)</li>
+    <li>Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+    <li>Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</li>
+    <li>Recht auf Widerspruch (Art. 21 DSGVO)</li>
+    <li>Recht auf Beschwerde bei der Aufsichtsbehörde (Art. 77 DSGVO)</li>
+  </ul>
+  <p>
+    Zur Wahrnehmung Ihrer Rechte können Sie uns unter <span class="placeholder">[E-Mail einfügen]</span> kontaktieren.
+  </p>
+  <p>
+    Aufsichtsbehörde in Österreich: <strong>Österreichische Datenschutzbehörde</strong>, Barichgasse 40-42, 1030 Wien, <a href="https://www.dsb.gv.at/" target="_blank" rel="noopener">www.dsb.gv.at</a>
+  </p>
+
+  <h2 id="speicherdauer">7. Speicherdauer</h2>
+  <p>
+    Personenbezogene Daten werden nur so lange gespeichert, wie es für den jeweiligen Zweck erforderlich ist oder gesetzliche Aufbewahrungsfristen bestehen. Server-Logs werden in der Regel nach 14 Tagen automatisch gelöscht.
+  </p>
+
+  <h2 id="aenderungen">8. Änderungen dieser Erklärung</h2>
+  <p>
+    Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänderte Rechtslagen oder bei Änderungen der Website-Funktionalität an die neuen Gegebenheiten anzupassen.
+  </p>
+  <p style="margin-top: 32px; font-size: 0.85rem; color: var(--muted);">
+    Stand: Mai 2026
+  </p>
+
+</main>
+
+<footer class="footer-mini">
+  &copy; 2026 Allergen Guard &middot; <a href="index.html">Startseite</a> &middot; <a href="impressum.html">Impressum</a>
+</footer>
+
+</body>
+</html>
